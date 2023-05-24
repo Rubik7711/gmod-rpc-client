@@ -1,0 +1,17 @@
+{
+  "name": "tits-rpc",
+  "version": "1.0.0",
+  "description": "RPC client for TitsRP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "rubik",
+  "license": "ISC",
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "dotenv": "^16.0.3",
+    "get-steam-user": "^1.0.4",
+    "node-cache": "^5.1.2"
+  }
+}
