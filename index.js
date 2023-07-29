@@ -3,7 +3,6 @@ require('dotenv').config()
 //client stuff
 const ConsoleWindow = require("node-hide-console-window")
 const Tray = require('trayicon')
-const fs = require('fs')
 
 //local server
 const http = require('http')
@@ -67,7 +66,6 @@ console.log(`Listening at http://127.0.0.1:6918`)
 
 Tray.create(function(tray) {
   tray.setTitle('TitsRP Discord Presence')
-  tray.setIcon(fs.readFileSync('./tit.ico'))
   let quit = tray.item("Quit", () => process.exit(0) );
   tray.setMenu(quit);
 })
