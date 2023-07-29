@@ -11,6 +11,8 @@
   "dependencies": {
     "discord-rpc": "^4.0.1",
     "dotenv": "^16.0.3",
-    "node-cache": "^5.1.2"
+    "node-cache": "^5.1.2",
+    "node-hide-console-window": "^2.1.1",
+    "trayicon": "^1.2.2"
   }
 }

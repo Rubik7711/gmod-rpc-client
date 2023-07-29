@@ -1,5 +1,14 @@
 require('dotenv').config()
 
+//client stuff
+const ConsoleWindow = require("node-hide-console-window")
+const Tray = require('trayicon')
+const fs = require('fs')
+
+//local server
+const http = require('http')
+const querystring = require('querystring')
+
 //discordrpc
 const DiscordRPC = require('discord-rpc')
 const clientId = process.env.CLIENT_ID
@@ -7,54 +16,60 @@ const API = process.env.API
 const rpc = new DiscordRPC.Client({ transport: 'ipc' })
 DiscordRPC.register(clientId)
 
-//steamclient
-var gsu = require('get-steam-user');
-
 //cache
 const NodeCache = require("node-cache");
 const cachedStatus = new NodeCache();
 cachedStatus.set("status", '');
 
-
 rpc.on('ready', () => {
-  setActivity()
-  setInterval(() => { setActivity() }, 15e3);
-});
+  console.log(`rpc client online`)
+})
+rpc.login({ clientId }).catch(console.error)
 
-async function setActivity() {
-  if (!rpc) return
-
-  //TODO: Get game state & make sure they're on tits 
-  gsu.getSteamId(function (steamid) {
-    if (!steamid) return
-    fetch(`${API}/${steamid}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cachedStatus.get("status") == data[0].status) return
-        const startTimestamp = new Date()
-        if (data[0].status.includes('/*')) {
-          var escDetails = data[0].status.split('/*').pop().split('*/')[0];
-          //TODO: Strip non-ascii characters
-          var escState = data[0].status.split('*/').pop()
-        }
-        rpc.setActivity({
-          details: (escDetails) && `${escDetails} 🔊` || data[0].nick,
-          state: (escState) && `${escState}` || `${data[0].status} at ${data[0].location}`,
-          startTimestamp,
-          //TODO: Display unique image based on grid location
-          largeImageKey: 'pier',
-          largeImageText: `This is a WIP and completely useless lol`,
-          smallImageKey: 'slump',
-          smallImageText: '148.59.74.119:27015',
-          instance: false,
-        });
-        cachedStatus.set("status", data[0].status)
-        console.log('updated status:', data[0].status)
-      })
-      .catch(function (err) {
-        console.log("Unable to fetch:", err);
+const server = http.createServer(function(request, response) {
+  if (request.method == 'POST') {
+    var body = ''
+    request.on('data', function(data) {
+      body += data
+    })
+    request.on('end', function() {
+      const req = querystring.parse(body);
+      if (cachedStatus.get("status") == req.status) return
+      const startTime = new Date()
+      rpc.setActivity({
+        details: req.username,
+        state: `${req.status}`,
+        startTime,
+        largeImageKey: 'gmod',
+        largeImageText: req.location || "",
+        smallImageKey: 'slump',
+        smallImageText: req.ip || "",
+        instance: false,
       });
-  });
-}
+      cachedStatus.set("status", req.status)
+      response.writeHead(200, {'Content-Type': 'text/html'})
+      response.end('post received')
+    })
+  }
+})
 
-rpc.login({ clientId }).catch(console.error);
+server.on('error', function(e) {
+  if (e.code === "EADDRINUSE") {
+      console.log("RPC service already running - can't run more than one instance");
+      process.exit(1);
+  } else {
+      console.log(e);
+  }
+})
+
+server.listen(6918, '127.0.0.1')
+console.log(`Listening at http://127.0.0.1:6918`)
+
+Tray.create(function(tray) {
+  tray.setTitle('TitsRP Discord Presence')
+  tray.setIcon(fs.readFileSync('./tit.ico'))
+  let quit = tray.item("Quit", () => process.exit(0) );
+  tray.setMenu(quit);
+})
+
+ConsoleWindow.hideConsole()
