@@ -62,7 +62,7 @@ server.listen(6918, '127.0.0.1')
 console.log(`Listening at http://127.0.0.1:6918`)
 
 Tray.create(function(tray) {
-  tray.setTitle('TitsRP Discord Presence')
+  tray.setTitle('GMod Discord Presence')
   let quit = tray.item("Quit", () => process.exit(0) );
   tray.setMenu(quit);
 })
