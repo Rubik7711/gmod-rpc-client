@@ -1,5 +1,3 @@
-require('dotenv').config()
-
 //client stuff
 const ConsoleWindow = require("node-hide-console-window")
 const Tray = require('trayicon')
@@ -10,8 +8,7 @@ const querystring = require('querystring')
 
 //discordrpc
 const DiscordRPC = require('discord-rpc')
-const clientId = process.env.CLIENT_ID
-const API = process.env.API
+const clientId = ""
 const rpc = new DiscordRPC.Client({ transport: 'ipc' })
 DiscordRPC.register(clientId)
 
